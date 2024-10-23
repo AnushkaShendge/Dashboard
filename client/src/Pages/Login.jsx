@@ -21,12 +21,12 @@ function Login() {
     e.preventDefault();
     const res = await axios.post("http://localhost:4000/login" , {email , password });
     if(res.data){
-      handleRedirect();
+      navigate('/dashboard');
     }
   }
 
   function handleRedirect() {
-    navigate('/dashboard');
+    navigate('/register');
   }
 
   return (
