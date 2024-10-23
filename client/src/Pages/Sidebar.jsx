@@ -22,7 +22,7 @@ function Sidebar({ children, isOpen, toggleSidebar }) {
                 <nav className="h-full flex flex-col border-r shadow-sm">
                     <div className="p-6 pb-2 flex justify-between items-center">
                         <div className={`flex items-center overflow-hidden transition-all ${expanded ? "" : "w-0"}`}>
-                            <h1 className="font-extrabold  ml-2 text-3xl">MyBuddy</h1>
+                            <h1 className="font-extrabold  ml-2 text-3xl">CallCenter</h1>
                         </div>
                     </div>
                     <div className="flex justify-end">

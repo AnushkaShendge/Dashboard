@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import bg from '../assets/1.jpg';
-import login from '../assets/login.png';
+import log from '../assets/login.png';
 import { FaFacebookSquare, FaTwitterSquare, FaGithubSquare } from "react-icons/fa";
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
@@ -31,7 +31,7 @@ function Register() {
     <div className="min-h-screen flex items-center justify-center bg-cover bg-center relative" style={{ backgroundImage: `url(${bg})` }}>
       <div className="bg-white bg-opacity-20 backdrop-blur-md rounded-3xl shadow-xl p-10 flex items-center space-x-12 max-w-4xl w-full mx-4">
         <div className="hidden sm:flex-1 sm:block">
-          <img src={login} alt="room" className="w-full h-80 animate-smooth-bounce" />
+          <img src={log} alt="room" className="w-full h-80 animate-smooth-bounce" />
           <p className="text-center text-lg font-mono text-white mt-4">Find , Borrow & Enjoy!</p>
         </div>
         <div className="flex-1 relative">
