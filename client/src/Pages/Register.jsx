@@ -4,6 +4,7 @@ import login from '../assets/login.png';
 import { FaFacebookSquare, FaTwitterSquare, FaGithubSquare } from "react-icons/fa";
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Register() {
   const [username , setUsername] = useState('')
@@ -17,6 +18,13 @@ function Register() {
   };
   function handleRedirect(){
     navigate('/');
+  }
+  async function handleSubmit(e){
+    e.preventDefault();
+    const res = await axios.post("http://localhost:4000/register" , {username , email , password });
+    if(res.data){
+      handleRedirect();
+    }
   }
 
   return (
@@ -33,7 +41,7 @@ function Register() {
               <button className="bg-black text-white px-4 py-2 rounded-r-full shadow-md">Sign Up</button>
             </div>
             <h2 className="text-2xl text-white mb-4 text-center">Sign Up</h2>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="mb-2 relative">
                 <input 
                   value={username}
@@ -70,7 +78,7 @@ function Register() {
               <div className="flex justify-between items-center mb-4">
                 <a href="#" className="text-sm text-blue-600 hover:underline">Forgot Password?</a>
               </div>
-              <button className="w-full bg-black hover:border-2  text-white px-4 py-2 rounded-lg">Sign Up</button>
+              <button type='submit' className="w-full bg-black hover:border-2  text-white px-4 py-2 rounded-lg">Sign Up</button>
             </form>
             <div className="flex justify-center items-center space-x-3 mt-4 opacity-50">
               <a href="#" className="text-white"><FaFacebookSquare size={24} /></a>

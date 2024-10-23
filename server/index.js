@@ -63,3 +63,7 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Something went wrong' });
     }
 });
+
+app.listen(4000, () => {
+    console.log('Server is running on port 4000');
+});
