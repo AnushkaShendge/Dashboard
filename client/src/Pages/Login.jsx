@@ -21,6 +21,7 @@ function Login() {
     e.preventDefault();
     const res = await axios.post("http://localhost:4000/login" , {email , password });
     if(res.data){
+      localStorage.setItem('user', res.data);
       navigate('/dashboard');
     }
   }

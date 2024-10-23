@@ -1,6 +1,10 @@
+import SideBarComp from "./SideBarComp"
+
 function Dashboard(){
     return (
-        <div></div>
+        <div className="flex">
+            <SideBarComp />
+        </div>
     )
 }
 export default Dashboard
