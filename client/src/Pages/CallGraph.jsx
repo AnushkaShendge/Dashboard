@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Pie } from 'react-chartjs-2';
-import 'chart.js/auto';
+import { Line } from 'react-chartjs-2';
+import 'chart.js/auto'; // Importing chart.js to support chart rendering
+import myAudio from './assets/my-audio-file.mp3'; // Adjust the path as necessary
+
 
 function CallGraph({ id }) {
   const [callData, setCallData] = useState({});
   const [sentimentData, setSentimentData] = useState({});
 
   useEffect(() => {
+    // Simulating API call by setting dummy data instead of fetching from backend
+    // Commenting out the axios part
+    /*
     async function fetchCallDetails() {
       const res = await axios.get(`http://localhost:4000/calls/${id}/insights`);
       if (res.data) {
@@ -15,32 +19,49 @@ function CallGraph({ id }) {
         setSentimentData(res.data.sentimentAnalysis);
       }
     }
-
     fetchCallDetails();
+    */
+
+    // Dummy data
+    const dummyCallData = {
+      summary: "This is a sample summary of the call. The conversation went well with the customer.",
+      audioUrl: myAudio, // Replace with a real audio link
+    };
+
+    const dummySentimentData = {
+      sentimentBreakdown: [
+        { type: 'Positive' },
+        { type: 'Neutral' },
+        { type: 'Negative' },
+        { type: 'Positive' },
+        { type: 'Negative' },
+        { type: 'Positive' },
+      ],
+    };
+
+    setCallData(dummyCallData);
+    setSentimentData(dummySentimentData);
+
   }, [id]);
 
-  // Calculate sentiment counts dynamically
-  const sentimentCounts = {
-    Positive: sentimentData.sentimentBreakdown
-      ? sentimentData.sentimentBreakdown.filter(item => item.type === 'Positive').length
-      : 0,
-    Negative: sentimentData.sentimentBreakdown
-      ? sentimentData.sentimentBreakdown.filter(item => item.type === 'Negative').length
-      : 0,
-    Neutral: sentimentData.sentimentBreakdown
-      ? sentimentData.sentimentBreakdown.filter(item => item.type === 'Neutral').length
-      : 0, // Assuming neutral is part of the data
-  };
-
-  // Update pie chart data dynamically based on sentiment counts
-  const pieData = {
-    labels: ['Positive', 'Negative', 'Neutral'],
+  // Using the dummy sentiment data to generate the chart data
+  const sentimentFlowData = {
+    labels: sentimentData.sentimentBreakdown
+      ? sentimentData.sentimentBreakdown.map((item, idx) => `Point ${idx + 1}`)
+      : [],
     datasets: [
       {
-        label: 'Sentiment Distribution',
-        data: [sentimentCounts.Positive, sentimentCounts.Negative, sentimentCounts.Neutral],
-        backgroundColor: ['#4caf50', '#f44336', '#ffeb3b'],
-        hoverOffset: 4,
+        label: 'Sentiment Flow',
+        data: sentimentData.sentimentBreakdown
+          ? sentimentData.sentimentBreakdown.map(item => {
+              if (item.type === 'Positive') return 0.75;
+              if (item.type === 'Negative') return -0.75;
+              return 0.0; // Neutral or other sentiments
+            })
+          : [],
+        fill: false,
+        borderColor: 'blue',
+        tension: 0.1,
       },
     ],
   };
@@ -56,22 +77,8 @@ function CallGraph({ id }) {
       </div>
 
       <div className="bg-white shadow-md rounded-lg p-4 mb-4">
-        <h2 className="text-xl font-semibold mb-2">Sentiment Breakdown</h2>
-        {sentimentData.sentimentBreakdown && sentimentData.sentimentBreakdown.map((item, index) => (
-          <div key={index}>
-            <strong>{item.type} Sentiment:</strong>
-            <ul>
-              {item.timestamps.map((time, i) => (
-                <li key={i}>{time}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      <div className="bg-white shadow-md rounded-lg p-4 mb-4">
-        <h2 className="text-xl font-semibold mb-2">Sentiment Distribution</h2>
-        <Pie data={pieData} />
+        <h2 className="text-xl font-semibold mb-2">Sentiment Flow Throughout the Conversation</h2>
+        <Line data={sentimentFlowData} />
       </div>
     </div>
   );
