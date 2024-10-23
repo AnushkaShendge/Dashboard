@@ -1,6 +1,6 @@
 import SideBarComp from "./SideBarComp"
 import { Link  } from "react-router-dom"
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import CallLogTable from "../Components/Table";
 import CallPieChart from "../Components/CallPieChart";
 import { Line } from "react-chartjs-2";
@@ -19,18 +19,40 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip,
 
 function Dashboard(){
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [rows, setRows] = useState([]); // State to hold the data
+    const [totCall , setTotCall] = useState(''); // State to hold the
+    const [callDuration , setCallDuration] = useState('');
+    const [callLen , setCallLen] = useState('');
 
+    async function fetchData(){
+        const res = await axios.get('http://localhost:4000/call-matrics/overview/');
+        if(res.data){
+            setTotCall(res.data.totalCallsMade);
+            setCallDuration(res.data.totalCallDuration);
+            setCallLen(res.data.averageCallLength);
+        }
+    }
+    // Fetch data from the backend using Axios
+    useEffect(() => {
+      axios.get('/api/calls/logs/') // Replace with your backend route
+        .then(response => {
+          setRows(response.data); // Assuming the response contains the array of call log data
+        })
+        .catch(error => {
+          console.error('Error fetching call data:', error);
+        });
+    }, []);
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
     };
 
     // Sample data for call logs
-    const rows = [
-        { employee: 'John Doe', callType: 'Outgoing', duration: '5:23', timestamp: '22 March 2024, 3:45 PM', sentimentScore: 'Positive'},
-        { employee: 'Jane Smith', callType: 'Incoming', duration: '8:10', timestamp: '21 March 2024, 1:15 PM', sentimentScore: 'Neutral'},
-        { employee: 'Chris Adams', callType: 'Missed', duration: '0:00', timestamp: '20 March 2024, 4:10 PM', sentimentScore: 'Negative'},
-        { employee: 'Diana Prince', callType: 'Outgoing', duration: '2:45', timestamp: '19 March 2024, 11:10 AM', sentimentScore: 'Positive'},
-    ];
+    // const rows = [
+    //     { employee: 'John Doe', callType: 'Outgoing', duration: '5:23', timestamp: '22 March 2024, 3:45 PM', sentimentScore: 'Positive'},
+    //     { employee: 'Jane Smith', callType: 'Incoming', duration: '8:10', timestamp: '21 March 2024, 1:15 PM', sentimentScore: 'Neutral'},
+    //     { employee: 'Chris Adams', callType: 'Missed', duration: '0:00', timestamp: '20 March 2024, 4:10 PM', sentimentScore: 'Negative'},
+    //     { employee: 'Diana Prince', callType: 'Outgoing', duration: '2:45', timestamp: '19 March 2024, 11:10 AM', sentimentScore: 'Positive'},
+    // ];
 
     // Function to get call counts
     function getCallCount(rows) {
@@ -85,30 +107,30 @@ function Dashboard(){
     const callCount = getCallCount(rows);
     
     return (
-        <div className="bg-gradient-to-tr from-pink-100 to-teal-100 p-6">
+        <div className="bg-gradient-to-tr from-teal-100 to-pink-200 p-6">
             <div className="flex rounded-2xl bg-white">
-                <div className={`${sidebarOpen ? "w-64" : "w-20"}  transition-all duration-300`}>
+                <div className={`${sidebarOpen ? "w-64" : "w-20"}  transition-all duration-300}`}>
                     <SideBarComp sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
                 </div>
                 <div className="flex-grow w-full mt-8 p-5 ">
                     <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-4">
-                        <div className="bg-gradient-to-br justify-center from-[#9ef1f9] to-[#6e8bf5] h-52 p-4 rounded-3xl flex items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-gray-400">
+                        <div className="bg-gradient-to-br from-[#7CF7FF] to-[#4B73FF] h-52 p-4 rounded-3xl flex items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-gray-400">
                             <div>
-                                <h4 className="text-2xl font-bold">Total Calls Made</h4>
+                                <h4 className="text-2xl font-bold">Total Calls Made : {totCall}</h4>
                             </div>
                         </div>
-                        <div className="bg-gradient-to-br  justify-center from-[#fff7ab] to-[#81feb3] h-52 p-4 rounded-3xl flex items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-gray-400">
+                        <div className="bg-gradient-to-br from-[#FFEB3A] to-[#4DEF8E] h-52 p-4 rounded-3xl flex items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-gray-400">
                             <div>
-                                <h4 className="text-2xl font-bold">Total Call Duration</h4>
+                                <h4 className="text-2xl font-bold">Total Call Duration : {callDuration}</h4>
                             </div>
                         </div>
-                        <div className="bg-gradient-to-br justify-center from-[#7f7dfa] to-[#da7afa] h-52 p-4 rounded-3xl flex items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-gray-400">
+                        <div className="bg-gradient-to-br from-[#8A88FB] to-[#D079EE] h-52 p-4 rounded-3xl flex items-center shadow-none transition-shadow duration-300 cursor-pointer hover:shadow-lg hover:shadow-gray-400">
                             <div>
-                                <h4 className="text-2xl font-bold">Average Call Length</h4>
+                                <h4 className="text-2xl font-bold">Average Call Length : {callLen}</h4>
                             </div>
                         </div>
                     </div>
-                    <CallLogTable/>
+                    <CallLogTable rows={rows}/>
                     <div className="grid grid-cols-2 gap-5">
                         <div className="mt-8 p-5 shadow-xl rounded-xl">
                             <h2 className="text-2xl font-semibold mb-4 p-4">Incomming vs Outgoing</h2>
@@ -133,4 +155,4 @@ function Dashboard(){
     );
 }
 
-export default Dashboard;
+export default Dashboard;
