@@ -3,13 +3,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Button, TextField, Select, MenuItem, Chip
 } from '@mui/material';
 
-const rows = [
-  { employee: 'John Doe', callType: 'Outgoing', duration: '5:23', timestamp: '22 March 2024, 3:45 PM', sentimentScore: 'Positive' },
-  { employee: 'Jane Smith', callType: 'Incoming', duration: '8:10', timestamp: '21 March 2024, 1:15 PM', sentimentScore: 'Neutral' },
-  { employee: 'Chris Adams', callType: 'Missed', duration: '0:00', timestamp: '20 March 2024, 4:10 PM', sentimentScore: 'Negative' },
-  { employee: 'Diana Prince', callType: 'Outgoing', duration: '2:45', timestamp: '19 March 2024, 11:10 AM', sentimentScore: 'Positive' },
-];
-
+// Function to determine the chip color based on call type
 const getStatusColor = (status) => {
   switch (status) {
     case 'Incoming':
@@ -23,9 +17,10 @@ const getStatusColor = (status) => {
   }
 };
 
-const CallLogTable = () => {
+const CallLogTable = ({ rows }) => {
   const [filters, setFilters] = useState({ callType: '', employee: '' });
 
+  // Handle changes in the filter inputs
   const handleFilterChange = (e) => {
     setFilters({
       ...filters,
@@ -33,9 +28,10 @@ const CallLogTable = () => {
     });
   };
 
-  const filteredRows = rows.filter(row => (
+  // Map over the `callLogs` inside `rows` (props) and filter based on filters
+  const filteredRows = rows.callLogs.filter(row => (
     (!filters.callType || row.callType === filters.callType) &&
-    (!filters.employee || row.employee.includes(filters.employee))
+    (!filters.employee || row.employeeName.toLowerCase().includes(filters.employee.toLowerCase()))
   ));
 
   return (
@@ -80,7 +76,7 @@ const CallLogTable = () => {
           <TableBody>
             {filteredRows.map((row, index) => (
               <TableRow key={index} hover>
-                <TableCell>{row.employee}</TableCell>
+                <TableCell>{row.employeeName}</TableCell>
                 <TableCell>
                   <Chip 
                     label={row.callType} 
@@ -88,16 +84,22 @@ const CallLogTable = () => {
                       ...getStatusColor(row.callType),
                       padding: '5px 10px',
                       borderRadius: '10px',
-                      color: getStatusColor(row.callType).color // Ensure text color is set dynamically
+                      color: getStatusColor(row.callType).color 
                     }} 
                     className='font-semibold'
                   />
                 </TableCell>
                 <TableCell>{row.duration}</TableCell>
-                <TableCell>{row.timestamp}</TableCell>
-                <TableCell>{row.sentimentScore}</TableCell>
+                <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
+                <TableCell>{row.sentimentScore >= 0.8 ? 'Positive' : row.sentimentScore >= 0.5 ? 'Neutral' : 'Negative'}</TableCell>
                 <TableCell>
-                  <Button variant="text" sx={{ color: '#2979ff' }}>Play</Button>
+                  <Button 
+                    variant="text" 
+                    sx={{ color: '#2979ff' }} 
+                    onClick={() => window.open(row.playbackUrl, '_blank')}
+                  >
+                    Play
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -108,4 +110,4 @@ const CallLogTable = () => {
   );
 };
 
-export default CallLogTable;
+export default CallLogTable;
