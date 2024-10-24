@@ -13,17 +13,18 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
+import axios from 'axios'
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
-
 
 function Dashboard(){
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [rows, setRows] = useState([]); // State to hold the data
-    const [totCall , setTotCall] = useState(''); // State to hold the
-    const [callDuration , setCallDuration] = useState('');
-    const [callLen , setCallLen] = useState('');
+    const [totCall , setTotCall] = useState('0'); // State to hold the total call count
+    const [callDuration , setCallDuration] = useState('0'); // State for call duration
+    const [callLen , setCallLen] = useState('0'); // State for average call length
 
+    // Fetch call overview data
     async function fetchData(){
         const res = await axios.get('http://localhost:4000/call-matrics/overview/');
         if(res.data){
@@ -32,36 +33,37 @@ function Dashboard(){
             setCallLen(res.data.averageCallLength);
         }
     }
-    // Fetch data from the backend using Axios
+
+    // Fetch call logs data from the backend using Axios
     useEffect(() => {
       axios.get('/api/calls/logs/') // Replace with your backend route
         .then(response => {
-          setRows(response.data); // Assuming the response contains the array of call log data
+          // Ensure response data is an array, otherwise default to empty array
+          setRows(Array.isArray(response.data) ? response.data : []);
         })
         .catch(error => {
           console.error('Error fetching call data:', error);
+          setRows([]); // Set to empty array on error
         });
     }, []);
+
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
     };
 
-    // Sample data for call logs
-    // const rows = [
-    //     { employee: 'John Doe', callType: 'Outgoing', duration: '5:23', timestamp: '22 March 2024, 3:45 PM', sentimentScore: 'Positive'},
-    //     { employee: 'Jane Smith', callType: 'Incoming', duration: '8:10', timestamp: '21 March 2024, 1:15 PM', sentimentScore: 'Neutral'},
-    //     { employee: 'Chris Adams', callType: 'Missed', duration: '0:00', timestamp: '20 March 2024, 4:10 PM', sentimentScore: 'Negative'},
-    //     { employee: 'Diana Prince', callType: 'Outgoing', duration: '2:45', timestamp: '19 March 2024, 11:10 AM', sentimentScore: 'Positive'},
-    // ];
-
-    // Function to get call counts
+    // Function to get call counts (incoming, outgoing, missed)
     function getCallCount(rows) {
         const callCount = {
           incoming: 0,
           outgoing: 0,
           missed: 0
         };
-      
+
+        // Ensure rows is an array before proceeding
+        if (!Array.isArray(rows)) {
+          return callCount; // Return default counts if rows is not an array
+        }
+
         rows.forEach(row => {
           if (row.callType.toLowerCase() === 'incoming') {
             callCount.incoming++;
@@ -71,9 +73,11 @@ function Dashboard(){
             callCount.missed++;
           }
         });
-      
+
         return callCount;
     }
+
+    // Mockup data for Call Duration chart
     const callDurationData = {
         labels: ['12 AM', '3 AM', '6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM'],
         datasets: [
@@ -130,10 +134,14 @@ function Dashboard(){
                             </div>
                         </div>
                     </div>
-                    <CallLogTable rows={rows}/>
+
+                    {/* Render Call Log Table */}
+                    <CallLogTable rows={rows} />
+
+                    {/* Render Charts */}
                     <div className="grid grid-cols-2 gap-5">
                         <div className="mt-8 p-5 shadow-xl rounded-xl">
-                            <h2 className="text-2xl font-semibold mb-4 p-4">Incomming vs Outgoing</h2>
+                            <h2 className="text-2xl font-semibold mb-4 p-4">Incoming vs Outgoing</h2>
                             <CallPieChart
                                 incomingCalls={callCount.incoming}
                                 outgoingCalls={callCount.outgoing}
@@ -145,11 +153,7 @@ function Dashboard(){
                             <Line data={callDurationData} options={callDurationOptions} />
                         </div>
                     </div>
-
-
                 </div>
-                
-                    
             </div>
         </div>
     );

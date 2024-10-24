@@ -3,6 +3,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Button, TextField, Select, MenuItem, Chip
 } from '@mui/material';
 
+
 // Function to determine the chip color based on call type
 const getStatusColor = (status) => {
   switch (status) {
@@ -28,8 +29,11 @@ const CallLogTable = ({ rows }) => {
     });
   };
 
-  // Map over the `callLogs` inside `rows` (props) and filter based on filters
-  const filteredRows = rows.callLogs.filter(row => (
+  // Ensure rows.callLogs is an array, or default to an empty array
+  const callLogs = rows && rows.callLogs ? rows.callLogs : [];
+
+  // Map over the `callLogs` and filter based on filters
+  const filteredRows = callLogs.filter(row => (
     (!filters.callType || row.callType === filters.callType) &&
     (!filters.employee || row.employeeName.toLowerCase().includes(filters.employee.toLowerCase()))
   ));
@@ -74,35 +78,43 @@ const CallLogTable = ({ rows }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredRows.map((row, index) => (
-              <TableRow key={index} hover>
-                <TableCell>{row.employeeName}</TableCell>
-                <TableCell>
-                  <Chip 
-                    label={row.callType} 
-                    sx={{
-                      ...getStatusColor(row.callType),
-                      padding: '5px 10px',
-                      borderRadius: '10px',
-                      color: getStatusColor(row.callType).color 
-                    }} 
-                    className='font-semibold'
-                  />
-                </TableCell>
-                <TableCell>{row.duration}</TableCell>
-                <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
-                <TableCell>{row.sentimentScore >= 0.8 ? 'Positive' : row.sentimentScore >= 0.5 ? 'Neutral' : 'Negative'}</TableCell>
-                <TableCell>
-                  <Button 
-                    variant="text" 
-                    sx={{ color: '#2979ff' }} 
-                    onClick={() => window.open(row.playbackUrl, '_blank')}
-                  >
-                    Play
-                  </Button>
+            {filteredRows.length > 0 ? (
+              filteredRows.map((row, index) => (
+                <TableRow key={index} hover>
+                  <TableCell>{row.employeeName}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={row.callType} 
+                      sx={{
+                        ...getStatusColor(row.callType),
+                        padding: '5px 10px',
+                        borderRadius: '10px',
+                        color: getStatusColor(row.callType).color 
+                      }} 
+                      className='font-semibold'
+                    />
+                  </TableCell>
+                  <TableCell>{row.duration}</TableCell>
+                  <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
+                  <TableCell>{row.sentimentScore >= 0.8 ? 'Positive' : row.sentimentScore >= 0.5 ? 'Neutral' : 'Negative'}</TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="text" 
+                      sx={{ color: '#2979ff' }} 
+                      onClick={() => window.open(row.playbackUrl, '_blank')}
+                    >
+                      Play
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No call logs available.
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>
